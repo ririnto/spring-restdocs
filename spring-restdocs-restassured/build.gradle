@@ -9,6 +9,7 @@ dependencies {
 	compile project(':spring-restdocs-core')
 	compile 'com.jayway.restassured:rest-assured'
 
+	testCompile 'junit:junit'
 	testCompile 'org.apache.tomcat.embed:tomcat-embed-core:8.5.11'
 	testCompile 'org.mockito:mockito-core'
 	testCompile 'org.hamcrest:hamcrest-library'
