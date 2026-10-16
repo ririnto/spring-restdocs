@@ -60,6 +60,20 @@ public class PrettyPrintingContentModifierTests {
 	}
 
 	@Test
+	public void xmlWithDoctypeIsNotModified() throws Exception {
+		String content = "<!DOCTYPE one><one a=\"alpha\"><two b=\"bravo\"/></one>";
+		assertThat(new PrettyPrintingContentModifier().modifyContent(content.getBytes(),
+				null), equalTo(content.getBytes()));
+	}
+
+	@Test
+	public void externalEntityIsNotResolved() throws Exception {
+		String content = "<!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><foo>&xxe;</foo>";
+		assertThat(new PrettyPrintingContentModifier().modifyContent(content.getBytes(),
+				null), equalTo(content.getBytes()));
+	}
+
+	@Test
 	public void empytContentIsHandledGracefully() throws Exception {
 		assertThat(new PrettyPrintingContentModifier().modifyContent("".getBytes(), null),
 				equalTo("".getBytes()));

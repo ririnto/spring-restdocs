@@ -21,9 +21,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -53,10 +53,16 @@ class XmlContentHandler implements ContentHandler {
 
 	XmlContentHandler(byte[] rawContent) {
 		try {
-			this.documentBuilder = DocumentBuilderFactory.newInstance()
-					.newDocumentBuilder();
+			DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+			builderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+			builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			builderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			builderFactory.setXIncludeAware(false);
+			builderFactory.setExpandEntityReferences(false);
+			this.documentBuilder = builderFactory.newDocumentBuilder();
 		}
-		catch (ParserConfigurationException ex) {
+		catch (Exception ex) {
 			throw new IllegalStateException("Failed to create document builder", ex);
 		}
 		this.rawContent = rawContent;
@@ -140,6 +146,8 @@ class XmlContentHandler implements ContentHandler {
 			StringWriter stringWriter = new StringWriter();
 			StreamResult xmlOutput = new StreamResult(stringWriter);
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 			transformerFactory.setAttribute("indent-number", 4);
 			Transformer transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");

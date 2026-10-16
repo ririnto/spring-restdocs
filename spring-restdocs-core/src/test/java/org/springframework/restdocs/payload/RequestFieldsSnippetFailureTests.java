@@ -162,6 +162,27 @@ public class RequestFieldsSnippetFailureTests {
 	}
 
 	@Test
+	public void xmlRequestFieldsWithDoctypeAreRejected() throws IOException {
+		this.thrown.expect(PayloadHandlingException.class);
+		new RequestFieldsSnippet(Collections.<FieldDescriptor>emptyList())
+				.document(this.operationBuilder.request("http://localhost")
+						.content("<!DOCTYPE a><a><b>5</b></a>").header(
+								HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+						.build());
+	}
+
+	@Test
+	public void externalEntityInXmlRequestFieldsIsNotResolved() throws IOException {
+		this.thrown.expect(PayloadHandlingException.class);
+		new RequestFieldsSnippet(Collections.<FieldDescriptor>emptyList())
+				.document(this.operationBuilder.request("http://localhost")
+						.content("<!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]>"
+								+ "<foo>&xxe;</foo>")
+						.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+						.build());
+	}
+
+	@Test
 	public void undocumentedXmlRequestFieldAndMissingXmlRequestField()
 			throws IOException {
 		this.thrown.expect(SnippetException.class);
